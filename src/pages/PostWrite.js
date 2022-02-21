@@ -19,6 +19,7 @@ const PostWrite = (props) => {
   let _post = is_edit ? post_list.find((p) => p.id === post_id) : null;
 
   const [contents, setContents] = React.useState(_post ? _post.contents : "");
+  const [layout, setLayout] = React.useState("bottom");
 
   React.useEffect(() => {
     if (is_edit && !_post) {
@@ -38,7 +39,7 @@ const PostWrite = (props) => {
   };
 
   const addPost = () => {
-    dispatch(postActions.addPostFB(contents));
+    dispatch(postActions.addPostFB(contents, layout));
   };
 
   const editPost = () => {
@@ -74,6 +75,18 @@ const PostWrite = (props) => {
 
       <Grid>
         <Grid padding="16px">
+          <select
+            onChange={(e) => {
+              if (parseInt(e.target.value) === 0) setLayout("bottom");
+              else if (parseInt(e.target.value) === 1) setLayout("left");
+              else setLayout("right");
+              console.log(typeof e.target.value);
+            }}
+          >
+            <option value="0">Bottom</option>
+            <option value="1">Left</option>
+            <option value="2">Right</option>
+          </select>
           <Text margin="0px" size="24px" bold>
             미리보기
           </Text>

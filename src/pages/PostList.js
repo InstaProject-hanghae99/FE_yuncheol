@@ -10,7 +10,6 @@ import { Grid } from "../elements";
 const PostList = (props) => {
   const dispatch = useDispatch();
   const post_list = useSelector((state) => state.post.list);
-  console.log(post_list);
   const user_info = useSelector((state) => state.user.user);
   const is_loading = useSelector((state) => state.post.is_loading);
   const paging = useSelector((state) => state.post.paging);
@@ -22,7 +21,6 @@ const PostList = (props) => {
     dispatch(postActions.getPostFB());
     // }
   }, []);
-  console.log(post_list);
   return (
     <React.Fragment>
       <Grid bg={"#EFF6FF"} padding="20px 0px">
@@ -35,7 +33,6 @@ const PostList = (props) => {
           loading={is_loading}
         >
           {post_list.map((p, idx) => {
-            console.log(p);
             if (p.user_info.user_id === user_info?.uid) {
               // if (true) {
               return (

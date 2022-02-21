@@ -10,7 +10,8 @@ import { actionCreators as postActions } from "../redux/modules/post";
 
 const Post = (props) => {
   const dispatch = useDispatch();
-
+  console.log(props.layout);
+  if (props.layout === "") console.log(null);
   return (
     <React.Fragment>
       <Grid>
@@ -48,12 +49,46 @@ const Post = (props) => {
             <Text>{props.insert_dt}</Text>
           </Grid>
         </Grid>
-        <Grid padding="16px">
-          <Text>{props.contents}</Text>
-        </Grid>
-        <Grid>
-          <Image shape="rectangle" src={props.image_url} />
-        </Grid>
+        <>
+          {props.layout === "bottom" && (
+            <>
+              <Button text={props.layout}></Button>
+
+              <Grid padding="16px">
+                <Text>{props.contents}</Text>
+              </Grid>
+              <Grid>
+                <Image shape="rectangle" src={props.image_url} />
+              </Grid>
+            </>
+          )}
+          {props.layout === "left" && (
+            <>
+              <Button text={props.layout}></Button>
+
+              <Grid is_flex padding="16px">
+                <Image shape="rectangle" src={props.image_url} />
+                <Text width="95vw">{props.contents}</Text>
+              </Grid>
+            </>
+          )}
+          {props.layout === "right" && (
+            <>
+              <Button text={props.layout}></Button>
+
+              <Grid is_flex padding="16px">
+                <Text width="95vw">{props.contents}</Text>
+                <Image shape="rectangle" src={props.image_url} />
+              </Grid>
+            </>
+          )}
+          {/* <Grid padding="16px">
+            <Text>{props.contents}</Text>
+          </Grid>
+          <Grid>
+            <Image shape="rectangle" src={props.image_url} />
+          </Grid> */}
+        </>
         <Grid padding="16px">
           <Text margin="0px" bold>
             댓글 {props.comment_cnt}개

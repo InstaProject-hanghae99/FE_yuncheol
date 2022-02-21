@@ -42,6 +42,7 @@ const initialPost = {
   image_url: "http://via.placeholder.com/400x300",
   contents: "",
   comment_cnt: 0,
+  layout: "bottom",
   insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
 };
 
@@ -142,6 +143,35 @@ const getPostFB = (start = null, size = 3) => {
   };
 };
 
+const getOnePostFB = (id) => {
+  return function (dispatch, getState, { history }) {
+    const postDB = firestore.collection("post");
+    postDB
+      .doc(id)
+      .get()
+      .then((doc) => {
+        console.log(doc);
+        console.log(doc.data());
+
+        let _post = doc.data();
+        let post = Object.keys(_post).reduce(
+          (acc, cur) => {
+            if (cur.indexOf("user_") !== -1) {
+              return {
+                ...acc,
+                user_info: { ...acc.user_info, [cur]: _post[cur] },
+              };
+            }
+            return { ...acc, [cur]: _post[cur] };
+          },
+          { id: doc.id, user_info: {} }
+        );
+
+        dispatch(setPost([post]));
+      });
+  };
+};
+
 const editPostFB = (post_id = null, post = {}) => {
   return function (dispatch, getState, { history }) {
     if (!post_id) {
@@ -192,7 +222,7 @@ const editPostFB = (post_id = null, post = {}) => {
   };
 };
 
-const addPostFB = (contents = "") => {
+const addPostFB = (contents = "", layout = "bottom") => {
   return function (dispatch, getState, { history }) {
     const postDB = firestore.collection("post");
     const _user = getState().user.user;
@@ -205,6 +235,7 @@ const addPostFB = (contents = "") => {
     const _post = {
       ...initialPost,
       contents: contents,
+      layout: layout,
       insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
     };
 
@@ -342,6 +373,7 @@ const actionCreators = {
   addPost,
   editPost,
   getPostFB,
+  getOnePostFB,
   addPostFB,
   editPostFB,
   removePostFB,
