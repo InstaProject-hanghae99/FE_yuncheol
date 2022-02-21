@@ -23,10 +23,11 @@ const Header = (props) => {
         <Grid is_flex padding="4px 16px">
           <Grid is_flex>
             {/* <Text margin="0px" size="24px" bold>
-                헬로
-              </Text> */}
+              헬로
+            </Text> */}
             <Button
-              text={"Home"}
+              width="50%"
+              text={"홈"}
               _onClick={() => {
                 history.push("/");
               }}

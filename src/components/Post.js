@@ -1,12 +1,16 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 // import Grid from "../elements/Grid";
 // import Image from "../elements/Image";
 // import Text from "../elements/Text";
 
 import { Grid, Image, Text, Button } from "../elements";
 import { history } from "../redux/configureStore";
+import { actionCreators as postActions } from "../redux/modules/post";
 
 const Post = (props) => {
+  const dispatch = useDispatch();
+
   return (
     <React.Fragment>
       <Grid>
@@ -17,16 +21,29 @@ const Post = (props) => {
           </Grid>
           <Grid is_flex width="auto">
             {props.is_me && (
-              <Button
-                width="auto"
-                padding="4px"
-                margin="4px"
-                _onClick={() => {
-                  history.push(`/write/${props.id}`);
-                }}
-              >
-                수정
-              </Button>
+              <>
+                <Button
+                  width="auto"
+                  padding="4px"
+                  margin="4px"
+                  _onClick={() => {
+                    dispatch(postActions.removePostFB(props.id));
+                    history.replace("/");
+                  }}
+                >
+                  삭제
+                </Button>
+                <Button
+                  width="auto"
+                  padding="4px"
+                  margin="4px"
+                  _onClick={() => {
+                    history.push(`/write/${props.id}`);
+                  }}
+                >
+                  수정
+                </Button>
+              </>
             )}
             <Text>{props.insert_dt}</Text>
           </Grid>

@@ -9,6 +9,7 @@ import { isLength } from "lodash";
 const SET_POST = "SET_POST";
 const ADD_POST = "ADD_POST";
 const EDIT_POST = "EDIT_POST";
+const REMOVE_POST = "REMOVE_POST";
 const LOADING = "LOADING";
 
 const setPost = createAction(SET_POST, (post_list, paging) => ({
@@ -19,6 +20,9 @@ const addPost = createAction(ADD_POST, (post) => ({ post }));
 const editPost = createAction(EDIT_POST, (post_id, post) => ({
   post_id,
   post,
+}));
+const removepost = createAction(REMOVE_POST, (post_id) => ({
+  post_id,
 }));
 const loading = createAction(LOADING, (is_loading) => ({ is_loading }));
 
@@ -54,31 +58,33 @@ const getPostFB = (start = null, size = 3) => {
 
     // 가져오기 시작~!
     dispatch(loading(true));
-    fetch("http://localhost:3000/api/posts.json", {
-      method: "GET", // 실제 서버 요청은 POST 요청이겠죠?
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        data.result.sort(function (a, b) {
-          var c = new Date(a.created_At);
-          var d = new Date(b.created_At);
-          return c - d;
-        });
+    // fetch("http://localhost:3000/api/posts.json", {
+    //   method: "GET", // 실제 서버 요청은 POST 요청이겠죠?
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     data.result.sort(function (a, b) {
+    //       var c = new Date(a.created_At);
+    //       var d = new Date(b.created_At);
+    //       return c - d;
+    //     });
 
-        if (data.ok) {
-          /**
-           * 선택 가능한 작업
-           * 1. localStorage.setItem("token", data.result.user.token)
-           * 2. dispatch(setPostList(data))
-           *  etc...
-           */
-        }
-        console.log(data.result);
-      });
+    //     if (data.ok) {
+    //       /**
+    //        * 선택 가능한 작업
+    //        * 1. localStorage.setItem("token", data.result.user.token)
+    //        * 2. dispatch(setPostList(data))
+    //        *  etc...
+    //        */
+    //       console.log(data.result);
+    //       dispatch(setPost(data.result, false));
+    //       console.log(data.result);
+    //     }
+    //   });
+
     const postDB = firestore.collection("post");
 
     let query = postDB.orderBy("insert_dt", "desc");
-    console.log(query);
 
     // 시작점 정보가 있으면? 시작점부터 가져오도록 쿼리 수정!
     if (start) {
@@ -129,7 +135,7 @@ const getPostFB = (start = null, size = 3) => {
         // 마지막 하나는 빼줍니다.
         // 그래야 size대로 리스트가 추가되니까요!
         // 마지막 데이터는 다음 페이지의 유무를 알려주기 위한 친구일 뿐! 리스트에 들어가지 않아요!
-        post_list.pop();
+        if (post_list.length !== 1) post_list.pop();
 
         dispatch(setPost(post_list, paging));
       });
@@ -246,7 +252,58 @@ const addPostFB = (contents = "") => {
       });
   };
 };
+const removePostFB = (post_id = null, post = {}) => {
+  return function (dispatch, getState, { history }) {
+    if (!post_id) {
+      console.log("게시물 정보가 없어요!");
+      return;
+    }
+    const _image = getState().image.preview;
+    const _post_idx = getState().post.list.findIndex((p) => p.id === post_id);
+    const _post = getState().post.list[_post_idx];
+    const postDB = firestore.collection("post");
+    // if (_image === _post.image_url) {
+    postDB
+      .doc(post_id)
+      .delete(post)
+      .then((doc) => {
+        dispatch(removepost(post_id));
+        history.replace("/");
+      })
+      .catch((err) => {
+        window.alert("앗! 이미지 업로드에 문제가 있어요!");
+        console.log("앗! 이미지 업로드에 문제가 있어요!", err);
+      });
 
+    return;
+    // } else {
+    //   const user_id = getState().user.user.uid;
+    //   const _upload = storage
+    //     .ref(`images/${user_id}_${new Date().getTime()}`)
+    //     .putString(_image, "data_url");
+    //   _upload.then((snapshot) => {
+    //     snapshot.ref
+    //       .getDownloadURL()
+    //       .then((url) => {
+    //         console.log(url);
+    //         return url;
+    //       })
+    //       .then((url) => {
+    //         postDB
+    //           .doc(post_id)
+    //           .update({ ...post, image_url: url })
+    //           .then((doc) => {
+    //             dispatch(editPost(post_id, { ...post, image_url: url }));
+    //             history.replace("/");
+    //           });
+    //       })
+    //       .catch((err) => {
+    //         window.alert("앗! 이미지 업로드에 문제가 있어요!");
+    //         console.log("앗! 이미지 업로드에 문제가 있어요!", err);
+    //       });
+    //   });
+  };
+};
 // reducer
 export default handleActions(
   {
@@ -266,6 +323,11 @@ export default handleActions(
         let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
         draft.list[idx] = { ...draft.list[idx], ...action.payload.post };
       }),
+    [REMOVE_POST]: (state, action) =>
+      produce(state, (draft) => {
+        let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
+        draft.list.pop(draft.list[idx]);
+      }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {
         draft.is_loading = action.payload.is_loading;
@@ -282,6 +344,7 @@ const actionCreators = {
   getPostFB,
   addPostFB,
   editPostFB,
+  removePostFB,
 };
 
 export { actionCreators };
