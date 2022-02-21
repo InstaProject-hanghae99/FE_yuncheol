@@ -1,39 +1,62 @@
 import React from "react";
-import { Grid, Text, Image } from "../elements";
+// import Grid from "../elements/Grid";
+// import Image from "../elements/Image";
+// import Text from "../elements/Text";
+
+import { Grid, Image, Text, Button } from "../elements";
+import { history } from "../redux/configureStore";
 
 const Post = (props) => {
   return (
     <React.Fragment>
       <Grid>
-        <Grid is_flex>
-          <Image shape="circle" src={props.src} />
-          <Text bold>{props.user_info.user_name}</Text>
-          <Text>{props.insert_dt}</Text>
+        <Grid is_flex padding="16px">
+          <Grid is_flex width="auto">
+            <Image shape="circle" src={props.src} />
+            <Text bold>{props.user_info.user_name}</Text>
+          </Grid>
+          <Grid is_flex width="auto">
+            {props.is_me && (
+              <Button
+                width="auto"
+                padding="4px"
+                margin="4px"
+                _onClick={() => {
+                  history.push(`/write/${props.id}`);
+                }}
+              >
+                수정
+              </Button>
+            )}
+            <Text>{props.insert_dt}</Text>
+          </Grid>
         </Grid>
         <Grid padding="16px">
           <Text>{props.contents}</Text>
         </Grid>
         <Grid>
-          <Image shape="rectangle" src={props.src} />
+          <Image shape="rectangle" src={props.image_url} />
         </Grid>
-        <Grid>
-          <Text bold>댓글 {props.Comment_cnt}개</Text>
+        <Grid padding="16px">
+          <Text margin="0px" bold>
+            댓글 {props.comment_cnt}개
+          </Text>
         </Grid>
       </Grid>
     </React.Fragment>
   );
 };
+
 Post.defaultProps = {
   user_info: {
     user_name: "mean0",
-    user_profile:
-      "https://post-phinf.pstatic.net/MjAyMDAyMjlfMjY4/MDAxNTgyOTU0Nzg3MjQ4.PBMFV4WrSJmeSUJ56c4C7Vkz_SsQlJ1SByKU18kkJh0g.T7mQnadCWVtEZ448AGk_9kG1HFBAzdztXZcBjvSbduwg.JPEG/%EA%B3%A0%EC%96%91%EC%9D%B4_%EB%82%98%EC%9D%B41.jpg",
+    user_profile: "http://via.placeholder.com/400x300",
   },
-  image_url:
-    "https://post-phinf.pstatic.net/MjAyMDAyMjlfMjY4/MDAxNTgyOTU0Nzg3MjQ4.PBMFV4WrSJmeSUJ56c4C7Vkz_SsQlJ1SByKU18kkJh0g.T7mQnadCWVtEZ448AGk_9kG1HFBAzdztXZcBjvSbduwg.JPEG/%EA%B3%A0%EC%96%91%EC%9D%B4_%EB%82%98%EC%9D%B41.jpg",
+  image_url: "http://via.placeholder.com/400x300",
   contents: "고양이네요!",
-  Comment_cnt: 10,
+  comment_cnt: 10,
   insert_dt: "2021-02-27 10:00:00",
+  is_me: false,
 };
 
 export default Post;

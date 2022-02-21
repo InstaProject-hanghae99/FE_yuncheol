@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "result": [
+    {
+      "user_id": "1",
+      "nickname": "testnick",
+      "post_id": "1",
+      "content": "asdfasdf",
+      "likeCount": 1,
+      "img_url": "nlkzxcvnklzxj",
+      "created_At": "2022-02-11 10:10:10",
+      "modified_At": "2022-02-01 10:10:10"
+    },
+    {
+      "user_id": "2",
+      "nickname": "admin",
+      "post_id": "2",
+      "content": "asdfasdf",
+      "likeCount": 1,
+      "img_url": "nlkzxcvnklzxj",
+      "created_At": "2022-02-01 10:10:10",
+      "modified_At": "2022-02-01 10:10:10"
+    },
+    {
+      "user_id": "3",
+      "nickname": "testnick",
+      "post_id": "3",
+      "content": "asdfasdf",
+      "likeCount": 1,
+      "img_url": "nlkzxcvnklzxj",
+      "created_At": "2022-02-15 10:10:10",
+      "modified_At": "2022-02-01 10:10:10"
+    }
+  ]
+}

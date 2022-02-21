@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "result": [
+    {
+      "nickname": "김예지",
+      "userId": "yj.kim@teamsparta.co",
+      "passwd": "MTIzNA=="
+    },
+    {
+      "nickname": "윤지용",
+      "userId": "jy.yoon@teamsparta.co",
+      "password": "MTIzNDEyMzQxMjM0"
+    },
+    {
+      "nickname": "2testnick",
+      "userId": "testid",
+      "password": "test"
+    },
+    {
+      "nickname": "1testnick",
+      "userId": "testid",
+      "password": "test"
+    }
+  ]
+}

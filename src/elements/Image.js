@@ -1,15 +1,18 @@
-import React from "react";
 import styled from "styled-components";
+import React from "react";
 
 const Image = (props) => {
   const { shape, src, size } = props;
+
   const styles = {
     src: src,
     size: size,
   };
+
   if (shape === "circle") {
-    return <ImageCirecle {...styles}></ImageCirecle>;
+    return <ImageCircle {...styles}></ImageCircle>;
   }
+
   if (shape === "rectangle") {
     return (
       <AspectOutter>
@@ -17,13 +20,28 @@ const Image = (props) => {
       </AspectOutter>
     );
   }
-  return null;
+
+  return (
+    <React.Fragment>
+      <ImageDefault {...styles}></ImageDefault>
+    </React.Fragment>
+  );
 };
+
 Image.defaultProps = {
   shape: "circle",
-  src: "https://post-phinf.pstatic.net/MjAyMDAyMjlfMjY4/MDAxNTgyOTU0Nzg3MjQ4.PBMFV4WrSJmeSUJ56c4C7Vkz_SsQlJ1SByKU18kkJh0g.T7mQnadCWVtEZ448AGk_9kG1HFBAzdztXZcBjvSbduwg.JPEG/%EA%B3%A0%EC%96%91%EC%9D%B4_%EB%82%98%EC%9D%B41.jpg",
+  src: "http://via.placeholder.com/400x300",
   size: 36,
 };
+
+const ImageDefault = styled.div`
+  --size: ${(props) => props.size}px;
+  width: var(--size);
+  height: var(--size);
+  background-image: url("${(props) => props.src}");
+  background-size: cover;
+`;
+
 const AspectOutter = styled.div`
   width: 100%;
   min-width: 250px;
@@ -37,7 +55,7 @@ const AspectInner = styled.div`
   background-size: cover;
 `;
 
-const ImageCirecle = styled.div`
+const ImageCircle = styled.div`
   --size: ${(props) => props.size}px;
   width: var(--size);
   height: var(--size);
@@ -47,4 +65,5 @@ const ImageCirecle = styled.div`
   background-size: cover;
   margin: 4px;
 `;
+
 export default Image;
