@@ -41,9 +41,6 @@ const PostList = (props) => {
                   margin="8px 0px"
                   key={p.id}
                   // key={idx}
-                  _onClick={() => {
-                    history.push(`/post/${p.id}`);
-                  }}
                 >
                   <Post
                     key={p.id}
@@ -59,7 +56,7 @@ const PostList = (props) => {
                   key={p.id}
                   bg="#ffffff"
                   _onClick={() => {
-                    history.push(`/post/${p.id}`);
+                    // history.push(`/post/${p.id}`);
                   }}
                 >
                   <Post {...p} />

@@ -43,6 +43,7 @@ const initialPost = {
   image_url: "http://via.placeholder.com/400x300",
   contents: "",
   comment_cnt: 0,
+  like_cnt: 0,
   layout: "bottom",
   insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
   // insert_dt: moment(),
@@ -152,8 +153,8 @@ const getOnePostFB = (id) => {
       .doc(id)
       .get()
       .then((doc) => {
-        console.log(doc);
-        console.log(doc.data());
+        // console.log(doc);
+        // console.log(doc.data());
 
         let _post = doc.data();
         let post = Object.keys(_post).reduce(
