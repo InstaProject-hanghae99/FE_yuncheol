@@ -7,11 +7,15 @@ import { useDispatch } from "react-redux";
 import { Grid, Image, Text, Button } from "../elements";
 import { history } from "../redux/configureStore";
 import { actionCreators as postActions } from "../redux/modules/post";
+import moment from "moment";
 
 const Post = (props) => {
   const dispatch = useDispatch();
-  console.log(props.layout);
-  if (props.layout === "") console.log(null);
+  let Today = moment().format("YYYY-MM-DD hh:mm:ss");
+  // let str = props.image_url.split("/images%");
+  // str = str[1].split("?alt");
+  // console.log(props.image_url);
+  // console.log(str[0]);
   return (
     <React.Fragment>
       <Grid>
@@ -21,6 +25,11 @@ const Post = (props) => {
             <Text bold>{props.user_info.user_name}</Text>
           </Grid>
           <Grid is_flex width="auto">
+            <Text>
+              {Math.abs(moment(Today).hour() - moment(props.insert_dt).hour())}
+              시간 전
+            </Text>
+
             {props.is_me && (
               <>
                 <Button
@@ -46,13 +55,12 @@ const Post = (props) => {
                 </Button>
               </>
             )}
-            <Text>{props.insert_dt}</Text>
           </Grid>
         </Grid>
         <>
           {props.layout === "bottom" && (
             <>
-              <Button text={props.layout}></Button>
+              {/* <Button text={props.layout}></Button> */}
 
               <Grid padding="16px">
                 <Text>{props.contents}</Text>
@@ -64,7 +72,7 @@ const Post = (props) => {
           )}
           {props.layout === "left" && (
             <>
-              <Button text={props.layout}></Button>
+              {/* <Button text={props.layout}></Button> */}
 
               <Grid is_flex padding="16px">
                 <Image shape="rectangle" src={props.image_url} />
@@ -74,7 +82,7 @@ const Post = (props) => {
           )}
           {props.layout === "right" && (
             <>
-              <Button text={props.layout}></Button>
+              {/* <Button text={props.layout}></Button> */}
 
               <Grid is_flex padding="16px">
                 <Text width="95vw">{props.contents}</Text>

@@ -2,6 +2,7 @@ import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 import { firestore, storage } from "../../shared/firebase";
 import { connectAdvanced } from "react-redux";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 import moment from "moment";
 import { actionCreators as imageActions } from "./image";
 import { isLength } from "lodash";
@@ -44,6 +45,7 @@ const initialPost = {
   comment_cnt: 0,
   layout: "bottom",
   insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  // insert_dt: moment(),
 };
 
 const getPostFB = (start = null, size = 3) => {
@@ -136,7 +138,7 @@ const getPostFB = (start = null, size = 3) => {
         // 마지막 하나는 빼줍니다.
         // 그래야 size대로 리스트가 추가되니까요!
         // 마지막 데이터는 다음 페이지의 유무를 알려주기 위한 친구일 뿐! 리스트에 들어가지 않아요!
-        if (post_list.length !== 1) post_list.pop();
+        post_list.pop();
 
         dispatch(setPost(post_list, paging));
       });
@@ -236,7 +238,9 @@ const addPostFB = (contents = "", layout = "bottom") => {
       ...initialPost,
       contents: contents,
       layout: layout,
+      // insert_dt: moment(),
       insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
+      // insert_dt: new Date(),
     };
 
     // getState()로 store의 상태값에 접근할 수 있어요!
@@ -253,14 +257,14 @@ const addPostFB = (contents = "", layout = "bottom") => {
           .getDownloadURL()
           .then((url) => {
             // url을 확인해봐요!
-            console.log(url);
+            // console.log(url);
             dispatch(imageActions.uploadImage(url));
             return url;
           })
           .then((url) => {
             // return으로 넘겨준 값이 잘 넘어왔나요? :)
             // 다시 콘솔로 확인해주기!
-            console.log(url);
+            // console.log(url);
 
             postDB
               .add({ ...user_info, ..._post, image_url: url })
@@ -289,15 +293,23 @@ const removePostFB = (post_id = null, post = {}) => {
       console.log("게시물 정보가 없어요!");
       return;
     }
-    const _image = getState().image.preview;
+    const postDB = firestore.collection("post");
+
+    //이미지 삭제
     const _post_idx = getState().post.list.findIndex((p) => p.id === post_id);
     const _post = getState().post.list[_post_idx];
-    const postDB = firestore.collection("post");
-    // if (_image === _post.image_url) {
+    console.log(_post.image_url);
+    let str = _post.image_url.split("/images%2F");
+    str = str[1].split("?alt");
+    const desertRef = ref(storage, "images/" + str[0]);
+    deleteObject(desertRef).then(() => {
+      console.log("image del");
+    });
+
     postDB
       .doc(post_id)
-      .delete(post)
-      .then((doc) => {
+      .delete()
+      .then(() => {
         dispatch(removepost(post_id));
         history.replace("/");
       })
@@ -340,8 +352,23 @@ export default handleActions(
   {
     [SET_POST]: (state, action) =>
       produce(state, (draft) => {
+        // draft.list.push(...action.payload.post_list);
+        // draft.paging = action.payload.paging;
+        // draft.is_loading = false;
         draft.list.push(...action.payload.post_list);
-        draft.paging = action.payload.paging;
+
+        draft.list = draft.list.reduce((acc, cur) => {
+          if (acc.findIndex((a) => a.id === cur.id) === -1) {
+            return [...acc, cur];
+          } else {
+            acc[acc.findIndex((a) => a.id === cur.id)] = cur;
+            return acc;
+          }
+        }, []);
+        if (action.payload.paging) {
+          draft.paging = action.payload.paging;
+        }
+
         draft.is_loading = false;
       }),
 
@@ -356,8 +383,9 @@ export default handleActions(
       }),
     [REMOVE_POST]: (state, action) =>
       produce(state, (draft) => {
-        let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
-        draft.list.pop(draft.list[idx]);
+        // let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
+        // draft.list.pop(draft.list[idx]);
+        draft.list = draft.list.filter((l) => l.id !== action.payload.post_id);
       }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {

@@ -13,7 +13,7 @@ Text.defaultProps = {
   bold: false,
   color: "#222831",
   size: "14px",
-  width: "100vw",
+  width: "",
 };
 export default Text;
 
@@ -27,5 +27,5 @@ const P2 = styled.p`
   color: ${(props) => props.color};
   font-size: ${(props) => props.size};
   font-weight: ${(props) => (props.bold ? "600" : "400")};
-  width: ${(props) => props.width};
+  width: ${(props) => (props.width ? "100vw" : "")};
 `;

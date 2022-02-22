@@ -56,11 +56,18 @@ const Header = (props) => {
 
   return (
     <React.Fragment>
-      <Grid is_flex padding="4px 16px">
-        <Grid>
-          <Text margin="0px" size="24px" bold>
+      <Grid is_flex padding="4px 16px" center>
+        <Grid is_flex>
+          {/* <Text margin="0px" size="24px" bold>
             헬로
-          </Text>
+          </Text> */}
+          <Button
+            width="50%"
+            text={"홈"}
+            _onClick={() => {
+              history.push("/");
+            }}
+          />
         </Grid>
 
         <Grid is_flex>
