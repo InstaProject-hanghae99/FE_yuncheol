@@ -80,7 +80,15 @@ const Signup = (props) => {
           />
         </Grid>
 
-        <Button text="회원가입하기" _onClick={signup}></Button>
+        <Button
+          text="회원가입하기"
+          _onClick={signup}
+          _disabled={
+            id === "" || user_name === "" || pwd === "" || pwd_check === ""
+              ? true
+              : false
+          }
+        ></Button>
       </Grid>
     </React.Fragment>
   );
