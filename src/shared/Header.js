@@ -17,7 +17,7 @@ const Header = (props) => {
 
   // const is_session = sessionStorage.getItem(_session_key) ? true : false;
   const is_session = getCookie ? true : false;
-
+  console.log("adsf");
   if (is_login && is_session) {
     return (
       <React.Fragment>
