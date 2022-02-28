@@ -2,10 +2,13 @@ import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 import { firestore, storage } from "../../shared/firebase";
 import { connectAdvanced } from "react-redux";
-import { getStorage, ref, deleteObject } from "firebase/storage";
+import { ref, deleteObject } from "firebase/storage";
 import moment from "moment";
 import { actionCreators as imageActions } from "./image";
 import { isLength } from "lodash";
+import axios from "axios";
+import { instance, token } from "../../shared/api";
+import { getCookie } from "../../shared/Cookie";
 
 const SET_POST = "SET_POST";
 const ADD_POST = "ADD_POST";
@@ -40,12 +43,16 @@ const initialPost = {
   //   user_name: "mean0",
   //   user_profile: "http://via.placeholder.com/400x300",
   // },
-  image_url: "http://via.placeholder.com/400x300",
+  imageUrl: "http://via.placeholder.com/400x300",
+  // image_url: "http://via.placeholder.com/400x300",
   contents: "",
   comment_cnt: 0,
-  like_cnt: 0,
-  layout: "bottom",
-  insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
+  likeCnt: 0,
+  // like_cnt: 0,
+  layoutType: "bottom",
+  // layout: "bottom",
+  insert_dt: moment().format(),
+  // insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
   // insert_dt: moment(),
 };
 
@@ -59,33 +66,71 @@ const getPostFB = (start = null, size = 3) => {
     if (_paging.start && !_paging.next) {
       return;
     }
-
+    // console.log(token);
     // 가져오기 시작~!
     dispatch(loading(true));
-    // fetch("http://localhost:3000/api/posts.json", {
-    //   method: "GET", // 실제 서버 요청은 POST 요청이겠죠?
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     data.result.sort(function (a, b) {
-    //       var c = new Date(a.created_At);
-    //       var d = new Date(b.created_At);
-    //       return c - d;
-    //     });
 
-    //     if (data.ok) {
-    //       /**
-    //        * 선택 가능한 작업
-    //        * 1. localStorage.setItem("token", data.result.user.token)
-    //        * 2. dispatch(setPostList(data))
-    //        *  etc...
-    //        */
-    //       console.log(data.result);
-    //       dispatch(setPost(data.result, false));
-    //       console.log(data.result);
-    //     }
-    //   });
+    let post_list = [];
+    let paging = {
+      start: 0,
+      next: null,
+      size: 10,
+    };
+    instance
+      .get("api/post", {
+        withCredentials: true,
+        headers: {
+          // Authorization: `Bearer ${token}`,
+          "X-AUTH-TOKEN": token,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.data.msg === "전체 게시물 보기") {
+          console.log(res.data.postResponseDto);
+          let _post = res.data.postResponseDto;
+          _post.forEach((doc) => {
+            let post = Object.keys(_post).reduce(
+              (acc, cur) => {
+                if (cur.indexOf("user_") !== -1) {
+                  return {
+                    ...acc,
+                    user_info: { ...acc.user_info, [cur]: _post[cur] },
+                  };
+                }
+                return { ...acc, [cur]: _post[cur] };
+              },
+              { id: doc.id, user_info: {} }
+            );
 
+            post_list.push(doc);
+
+            console.log(doc);
+          });
+        }
+        // post_list.pop();
+
+        dispatch(setPost(post_list, paging));
+
+        // docs.forEach((doc) => {
+        //   console.log(doc);
+
+        //   let post = Object.keys(docs).reduce((acc, cur) => {
+        //     console.log(docs, acc, cur);
+        //   });
+        // });
+        // dispatch(setPost(docs, paging));
+      })
+      .catch((error) => {
+        console.log(error);
+        var errorCode = error.code;
+        var errorMessage = error.message;
+
+        console.log(errorCode, errorMessage);
+        // ..
+      });
+
+    return;
     const postDB = firestore.collection("post");
 
     let query = postDB.orderBy("insert_dt", "desc");
@@ -251,6 +296,7 @@ const addPostFB = (contents = "", layout = "bottom") => {
     const _upload = storage
       .ref(`images/${user_info.user_id}_${new Date().getTime()}`)
       .putString(_image, "data_url");
+    // let cookie = getCookie("JSESSIONID");
 
     _upload
       .then((snapshot) => {
@@ -267,6 +313,34 @@ const addPostFB = (contents = "", layout = "bottom") => {
             // 다시 콘솔로 확인해주기!
             // console.log(url);
 
+            instance
+              .post(
+                "api/post",
+                {
+                  content: contents,
+                  imgUrl: url,
+                  layout: layout,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    // "X-AUTH-TOKEN": token,
+                  },
+                }
+              )
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err.name);
+                console.log(err.response);
+
+                var errorCode = err.code;
+                var errorMessage = err.message;
+
+                console.log(errorCode, errorMessage);
+              });
+            return;
             postDB
               .add({ ...user_info, ..._post, image_url: url })
               .then((doc) => {
@@ -358,14 +432,14 @@ export default handleActions(
         // draft.is_loading = false;
         draft.list.push(...action.payload.post_list);
 
-        draft.list = draft.list.reduce((acc, cur) => {
-          if (acc.findIndex((a) => a.id === cur.id) === -1) {
-            return [...acc, cur];
-          } else {
-            acc[acc.findIndex((a) => a.id === cur.id)] = cur;
-            return acc;
-          }
-        }, []);
+        // draft.list = draft.list.reduce((acc, cur) => {
+        //   if (acc.findIndex((a) => a.id === cur.id) === -1) {
+        //     return [...acc, cur];
+        //   } else {
+        //     acc[acc.findIndex((a) => a.id === cur.id)] = cur;
+        //     return acc;
+        //   }
+        // }, []);
         if (action.payload.paging) {
           draft.paging = action.payload.paging;
         }

@@ -18,6 +18,7 @@ import Permit from "./Permit";
 
 import { useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
+import { actionCreators as imageActions } from "../redux/modules/image";
 
 import { apiKey } from "./firebase";
 
@@ -52,7 +53,11 @@ function App() {
           is_float
           text="+"
           _onClick={() => {
-            history.push("/write");
+            dispatch(
+              imageActions.setPreview("http://via.placeholder.com/400x300")
+            );
+
+            history.replace("/write");
           }}
         ></Button>
       </Permit>

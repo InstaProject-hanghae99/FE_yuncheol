@@ -3,7 +3,7 @@ import React from "react";
 
 import Post from "../components/Post";
 import { useSelector, useDispatch } from "react-redux";
-import { actionCreators as postActions } from "../redux/modules/post";
+import post, { actionCreators as postActions } from "../redux/modules/post";
 import InfinityScroll from "../shared/InfinityScroll";
 import { Grid } from "../elements";
 
@@ -19,6 +19,7 @@ const PostList = (props) => {
   React.useEffect(() => {
     // if (post_list.length === 0) {
     dispatch(postActions.getPostFB());
+    return () => {};
     // }
   }, []);
   return (
@@ -33,8 +34,9 @@ const PostList = (props) => {
           loading={is_loading}
         >
           {post_list.map((p, idx) => {
-            if (p.user_info.user_id === user_info?.uid) {
-              // if (true) {
+            console.log(user_info);
+            // if (p.user_info.user_id === user_info?.uid) {
+            if (true) {
               return (
                 <Grid
                   bg="#ffffff"

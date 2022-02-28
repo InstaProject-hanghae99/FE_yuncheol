@@ -3,6 +3,8 @@ import { produce } from "immer";
 import { setCookie, getCookie, deleteCookie } from "../../shared/Cookie";
 import { auth } from "../../shared/firebase";
 import firebase from "firebase/compat/app";
+import { userApi, instance } from "../../shared/api";
+import axios from "axios";
 
 //actions
 const LOG_IN = "LOG_IN";
@@ -41,6 +43,44 @@ const loginAction = (user) => {
 
 const loginFB = (id, pwd) => {
   return function (dispatch, getState, { history }) {
+    instance
+      .post(
+        "api/login",
+        { username: id, password: pwd }
+        // { headers: { "Content-Type": "application/json" } }
+      )
+      .then((res) => {
+        // if (res.data.result === "success") {
+        console.log(res.data);
+        if (res.data.message === "로그인 성공") {
+          const tokens = res.data.responseDto.token;
+          //세션저장소 말고 쿠키로 사용
+          setCookie("jwtToken", tokens);
+          // axios.defaults.headers.common["Authorization"] = `Bearer ${tokens}`;
+
+          dispatch(
+            setUser({
+              user_name: res.data.responseDto.username,
+              id: id,
+              user_profile: "",
+              uid: res.data.responseDto.userId,
+            })
+          );
+
+          history.push("/");
+        }
+      })
+      .catch((error) => {
+        console.log(error.respons);
+
+        var errorCode = error.code;
+        var errorMessage = error.message;
+
+        console.log(errorCode, errorMessage);
+        // ..
+      });
+    return;
+
     auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then((res) => {
       auth
         .signInWithEmailAndPassword(id, pwd)
@@ -68,8 +108,45 @@ const loginFB = (id, pwd) => {
   };
 };
 
-const signupFB = (id, pwd, user_name) => {
+const signupFB = (id, pwd, pwd_check, user_name) => {
   return function (dispatch, getState, { history }) {
+    instance
+      .post(
+        "api/register",
+        {
+          username: id,
+          password: pwd,
+          checkPw: pwd_check,
+          nickname: user_name,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.data.message === "회원가입 성공") {
+          console.log(res);
+
+          // dispatch(
+          //   setUser({
+          //     user_name: user_name,
+          //     id: id,
+          //     user_profile: "",
+          //     uid: res.userData.userId,
+          //   })
+          // );
+          history.push("/login");
+        }
+      })
+      .catch((error) => {
+        //예외처리
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        var errorType = error.errorType;
+        console.log(errorCode, errorMessage, errorType);
+        // ..
+      });
+
+    return;
     fetch("http://localhost:3000/auth/login.json", {
       method: "GET", // 실제 서버 요청은 POST 요청이겠죠?
     })
@@ -145,11 +222,11 @@ const loginCheckFB = () => {
 
 const logoutFB = () => {
   return function (dispatch, getState, { history }) {
-    auth.signOut().then(() => {
-      //auth.signOut()로그아웃 함수
-      dispatch(logOut());
-      history.replace("/");
-    });
+    deleteCookie("token");
+    window.alert("로그아웃 되었습니다");
+    //auth.signOut()로그아웃 함수
+    dispatch(logOut());
+    history.replace("/");
   };
 };
 
@@ -158,13 +235,13 @@ export default handleActions(
   {
     [SET_USER]: (state, action) =>
       produce(state, (draft) => {
-        setCookie("is_login", "success");
+        // setCookie("is_login", "success");
         draft.user = action.payload.user;
         draft.is_login = true;
       }),
     [LOG_OUT]: (state, action) =>
       produce(state, (draft) => {
-        deleteCookie("is_login");
+        // deleteCookie("is_login");
         draft.user = null;
         draft.is_login = false;
       }),

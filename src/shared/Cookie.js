@@ -1,7 +1,8 @@
 const getCookie = (name) => {
   let value = ";" + document.cookie;
 
-  let parts = value.split(`; ${name}=`);
+  let parts = value.split(`${name}=`);
+  // let parts = value.split(`; ${name}=`);//안되서 변형함
 
   if (parts.length === 2) {
     return parts.pop().split(";").shift();

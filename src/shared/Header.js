@@ -15,7 +15,8 @@ const Header = (props) => {
 
   const _session_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
 
-  const is_session = sessionStorage.getItem(_session_key) ? true : false;
+  // const is_session = sessionStorage.getItem(_session_key) ? true : false;
+  const is_session = getCookie ? true : false;
 
   if (is_login && is_session) {
     return (
@@ -29,7 +30,7 @@ const Header = (props) => {
               width="50%"
               text={"홈"}
               _onClick={() => {
-                history.push("/");
+                history.replace("/");
               }}
             />
           </Grid>

@@ -1,5 +1,7 @@
 import React from "react";
 import Post from "../components/Post";
+import { Grid, Text, Button, Image, Input } from "../elements";
+
 import CommentList from "../components/CommentList";
 import CommentWrite from "../components/CommentWrite";
 
@@ -11,13 +13,24 @@ import { actionCreators as postActions } from "../redux/modules/post";
 
 const PostDetail = (props) => {
   const dispatch = useDispatch();
+  const { history } = props;
+
   const id = props.match.params.id;
+
+  const is_login = useSelector((state) => state.user.is_login);
 
   const user_info = useSelector((state) => state.user.user);
 
   const post_list = useSelector((store) => store.post.list);
 
-  const post_idx = post_list.findIndex((p) => p.id === id);
+  const post_idx = post_list.findIndex((p) => p.postId === id);
+  post_list.map((cur, idx) => {
+    console.log(cur);
+    if (cur.postId == id) {
+      post_idx = idx;
+      return;
+    }
+  });
   const post = post_list[post_idx];
 
   React.useEffect(() => {
@@ -28,6 +41,24 @@ const PostDetail = (props) => {
     dispatch(postActions.getOnePostFB(id));
   }, []);
 
+  //로그인해야 볼수 있게 수정
+  if (!is_login) {
+    return (
+      <Grid margin="100px 0px" padding="16px" center>
+        <Text size="32px" bold>
+          앗! 잠깐!
+        </Text>
+        <Text size="16px">로그인 후에만 글을 쓸 수 있어요!</Text>
+        <Button
+          _onClick={() => {
+            history.replace("/");
+          }}
+        >
+          로그인 하러가기
+        </Button>
+      </Grid>
+    );
+  }
   return (
     <React.Fragment>
       {post && (
