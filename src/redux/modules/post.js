@@ -432,14 +432,14 @@ export default handleActions(
         // draft.is_loading = false;
         draft.list.push(...action.payload.post_list);
 
-        // draft.list = draft.list.reduce((acc, cur) => {
-        //   if (acc.findIndex((a) => a.id === cur.id) === -1) {
-        //     return [...acc, cur];
-        //   } else {
-        //     acc[acc.findIndex((a) => a.id === cur.id)] = cur;
-        //     return acc;
-        //   }
-        // }, []);
+        draft.list = draft.list.reduce((acc, cur) => {
+          if (acc.findIndex((a) => a.id === cur.id) === -1) {
+            return [...acc, cur];
+          } else {
+            acc[acc.findIndex((a) => a.id === cur.id)] = cur;
+            return acc;
+          }
+        }, []);
         if (action.payload.paging) {
           draft.paging = action.payload.paging;
         }
