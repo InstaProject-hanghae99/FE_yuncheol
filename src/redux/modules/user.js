@@ -265,7 +265,7 @@ const loginCheckFB = () => {
 
 const logoutFB = () => {
   return function (dispatch, getState, { history }) {
-    deleteCookie("jwtToken");
+    // deleteCookie("jwtToken");
     sessionStorage.clear();
     window.alert("로그아웃 되었습니다");
     //auth.signOut()로그아웃 함수
