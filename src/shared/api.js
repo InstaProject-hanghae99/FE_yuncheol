@@ -4,7 +4,7 @@ import { getCookie } from "./Cookie";
 const token = sessionStorage.getItem("jwtToken");
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_MYINSTA_API_BASE_URL,
+  baseURL: process.env.REACT_APP_MYINSTA_API_BASE_URL_ssj,
 });
 
 // var formData = new FormData();

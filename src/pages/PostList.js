@@ -39,11 +39,11 @@ const PostList = (props) => {
                 <Grid
                   bg="#ffffff"
                   margin="8px 0px"
-                  // key={p.board_id}
+                  key={p.board_id}
                   // key={idx}
                 >
                   <Post
-                    key={p.board_id}
+                    // key={p.board_id}
                     // key={idx}
                     {...p}
                     is_me

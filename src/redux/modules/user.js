@@ -225,8 +225,6 @@ const loginCheckFB = () => {
         },
       })
       .then((res) => {
-        console.log(res);
-
         dispatch(
           setUser({
             user_name: res.data.data.account_name,

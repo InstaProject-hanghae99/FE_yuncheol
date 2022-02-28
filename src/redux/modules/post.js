@@ -504,10 +504,10 @@ export default handleActions(
       produce(state, (draft) => {
         // let idx = draft.list.findIndex((p) => p.id === action.payload.post_id);
         // draft.list.pop(draft.list[idx]);
-        let idx = draft.list.filter(
-          (l) => l.board_id === action.payload.post_id
+        draft.list = draft.list.filter(
+          (l) => l.board_id !== action.payload.post_id
         );
-        draft.list.pop(draft.list[idx]);
+        // draft.list.pop(draft.list[idx]);
       }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {

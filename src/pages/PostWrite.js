@@ -16,17 +16,14 @@ const PostWrite = (props) => {
 
   const { history } = props;
 
-  console.log("post_id", typeof post_id);
   let _post = is_edit
     ? post_list.find((p) => p.board_id === parseInt(post_id))
     : null;
-  console.log("_post", _post);
   const [contents, setContents] = React.useState(_post ? _post.contents : "");
   const [layout, setLayout] = React.useState("bottom");
 
   React.useEffect(() => {
     if (is_edit && !_post) {
-      console.log("포스트 정보가 없어요!");
       history.goBack();
 
       return;
@@ -46,7 +43,6 @@ const PostWrite = (props) => {
   };
 
   const editPost = () => {
-    console.log(contents);
     dispatch(postActions.editPostFB(post_id, { contents: contents }));
   };
 
