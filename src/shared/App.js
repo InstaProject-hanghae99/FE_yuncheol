@@ -21,12 +21,14 @@ import { actionCreators as userActions } from "../redux/modules/user";
 import { actionCreators as imageActions } from "../redux/modules/image";
 
 import { apiKey } from "./firebase";
+import { getCookie } from "./Cookie";
 
 function App() {
   const dispatch = useDispatch();
 
   const _session_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
-  const is_session = sessionStorage.getItem(_session_key) ? true : false;
+  const is_session = sessionStorage.getItem("jwtToken") ? true : false;
+  // const is_session = getCookie("jwtToken") ? true : false;
 
   React.useEffect(() => {
     if (is_session) {

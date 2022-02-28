@@ -8,7 +8,6 @@ import { apiKey } from "../shared/firebase";
 
 const HeartButton = (props) => {
   const _sessioin_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
-  const is_session = sessionStorage.getItem(_sessioin_key) ? true : false;
 
   const dispatch = useDispatch();
   const like_list = useSelector((state) => state.like.list);

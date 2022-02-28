@@ -15,9 +15,8 @@ const Header = (props) => {
 
   const _session_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
 
-  // const is_session = sessionStorage.getItem(_session_key) ? true : false;
-  const is_session = getCookie ? true : false;
-  console.log("adsf");
+  const is_session = sessionStorage.getItem("jwtToken") ? true : false;
+  // const is_session = getCookie ? true : false;
   if (is_login && is_session) {
     return (
       <React.Fragment>
@@ -40,7 +39,7 @@ const Header = (props) => {
             <Button
               text="알림"
               _onClick={() => {
-                history.push("/noti");
+                history.replace("/noti");
               }}
             ></Button>
             <Button
@@ -66,7 +65,7 @@ const Header = (props) => {
             width="50%"
             text={"홈"}
             _onClick={() => {
-              history.push("/");
+              history.replace("/");
             }}
           />
         </Grid>
@@ -75,13 +74,13 @@ const Header = (props) => {
           <Button
             text="로그인"
             _onClick={() => {
-              history.push("/login");
+              history.replace("/login");
             }}
           ></Button>
           <Button
             text="회원가입"
             _onClick={() => {
-              history.push("/signup");
+              history.replace("/signup");
             }}
           ></Button>
         </Grid>

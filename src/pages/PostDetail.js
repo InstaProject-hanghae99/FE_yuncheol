@@ -22,10 +22,10 @@ const PostDetail = (props) => {
   const user_info = useSelector((state) => state.user.user);
 
   const post_list = useSelector((store) => store.post.list);
+  const post_idx = post_list.findIndex((p) => p.board_id == id);
 
-  const post_idx = post_list.findIndex((p) => p.postId === id);
   post_list.map((cur, idx) => {
-    console.log(cur);
+    // console.log(cur);
     if (cur.postId == id) {
       post_idx = idx;
       return;
@@ -41,29 +41,29 @@ const PostDetail = (props) => {
     dispatch(postActions.getOnePostFB(id));
   }, []);
 
-  //로그인해야 볼수 있게 수정
-  if (!is_login) {
-    return (
-      <Grid margin="100px 0px" padding="16px" center>
-        <Text size="32px" bold>
-          앗! 잠깐!
-        </Text>
-        <Text size="16px">로그인 후에만 글을 쓸 수 있어요!</Text>
-        <Button
-          _onClick={() => {
-            history.replace("/");
-          }}
-        >
-          로그인 하러가기
-        </Button>
-      </Grid>
-    );
-  }
+  // //로그인해야 볼수 있게 수정
+  // if (!is_login) {
+  //   return (
+  //     <Grid margin="100px 0px" padding="16px" center>
+  //       <Text size="32px" bold>
+  //         앗! 잠깐!
+  //       </Text>
+  //       <Text size="16px">로그인 후에만 글을 쓸 수 있어요!</Text>
+  //       <Button
+  //         _onClick={() => {
+  //           history.replace("/");
+  //         }}
+  //       >
+  //         로그인 하러가기
+  //       </Button>
+  //     </Grid>
+  //   );
+  // }
+  console.log("post", post);
+  console.log("user_info?.uid", user_info?.uid);
   return (
     <React.Fragment>
-      {post && (
-        <Post {...post} is_me={post.user_info.user_id === user_info?.uid} />
-      )}
+      {post && <Post {...post} is_me={post.account_id === user_info?.uid} />}
       {/* <Permit>
         <CommentWrite post_id={id} />
       </Permit>

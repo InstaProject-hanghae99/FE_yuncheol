@@ -16,8 +16,11 @@ const PostWrite = (props) => {
 
   const { history } = props;
 
-  let _post = is_edit ? post_list.find((p) => p.id === post_id) : null;
-
+  console.log("post_id", typeof post_id);
+  let _post = is_edit
+    ? post_list.find((p) => p.board_id === parseInt(post_id))
+    : null;
+  console.log("_post", _post);
   const [contents, setContents] = React.useState(_post ? _post.contents : "");
   const [layout, setLayout] = React.useState("bottom");
 
@@ -30,7 +33,7 @@ const PostWrite = (props) => {
     }
 
     if (is_edit) {
-      dispatch(imageActions.setPreview(_post.image_url));
+      dispatch(imageActions.setPreview(_post.img_url));
     }
   }, []);
 
@@ -43,6 +46,7 @@ const PostWrite = (props) => {
   };
 
   const editPost = () => {
+    console.log(contents);
     dispatch(postActions.editPostFB(post_id, { contents: contents }));
   };
 
@@ -80,7 +84,6 @@ const PostWrite = (props) => {
               if (parseInt(e.target.value) === 0) setLayout("bottom");
               else if (parseInt(e.target.value) === 1) setLayout("left");
               else setLayout("right");
-              console.log(typeof e.target.value);
             }}
           >
             <option value="0">Bottom</option>

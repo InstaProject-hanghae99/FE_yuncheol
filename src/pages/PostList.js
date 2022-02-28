@@ -13,39 +13,37 @@ const PostList = (props) => {
   const user_info = useSelector((state) => state.user.user);
   const is_loading = useSelector((state) => state.post.is_loading);
   const paging = useSelector((state) => state.post.paging);
-
   const { history } = props;
-
   React.useEffect(() => {
     // if (post_list.length === 0) {
+    const list = post_list;
     dispatch(postActions.getPostFB());
-    return () => {};
     // }
   }, []);
+
   return (
     <React.Fragment>
       <Grid bg={"#EFF6FF"} padding="20px 0px">
         {/* <Post/> */}
         <InfinityScroll
-          callNext={() => {
-            dispatch(postActions.getPostFB(paging.next));
-          }}
+          // callNext={() => {
+          //   dispatch(postActions.getPostFB(paging.next));
+          // }}
           is_next={paging.next ? true : false}
           loading={is_loading}
         >
           {post_list.map((p, idx) => {
-            console.log(user_info);
-            // if (p.user_info.user_id === user_info?.uid) {
-            if (true) {
+            if (p.account_id === user_info?.uid) {
+              // if (true) {
               return (
                 <Grid
                   bg="#ffffff"
                   margin="8px 0px"
-                  key={p.id}
+                  // key={p.board_id}
                   // key={idx}
                 >
                   <Post
-                    key={p.id}
+                    key={p.board_id}
                     // key={idx}
                     {...p}
                     is_me
@@ -55,7 +53,7 @@ const PostList = (props) => {
             } else {
               return (
                 <Grid
-                  key={p.id}
+                  key={p.board_id}
                   bg="#ffffff"
                   _onClick={() => {
                     // history.push(`/post/${p.id}`);

@@ -26,7 +26,7 @@ const env = process.env.NODE_ENV;
 // 개발환경에서는 로거라는 걸 하나만 더 써볼게요.
 if (env === "development") {
   const { logger } = require("redux-logger");
-  middlewares.push(logger);
+  // middlewares.push(logger);
 }
 
 const composeEnhancers =

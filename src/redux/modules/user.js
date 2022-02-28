@@ -3,7 +3,7 @@ import { produce } from "immer";
 import { setCookie, getCookie, deleteCookie } from "../../shared/Cookie";
 import { auth } from "../../shared/firebase";
 import firebase from "firebase/compat/app";
-import { userApi, instance } from "../../shared/api";
+import { userApi, instance, token } from "../../shared/api";
 import axios from "axios";
 
 //actions
@@ -43,32 +43,41 @@ const loginAction = (user) => {
 
 const loginFB = (id, pwd) => {
   return function (dispatch, getState, { history }) {
+    // const is_cookie = getCookie("jwtToken") ? true : false;
+    // if (is_cookie) {
+    //   //버그수정해야함
+    //   console.log(is_cookie);
+    //   dispatch(loginCheckFB());
+    //   return;
+    // }
     instance
       .post(
         "api/login",
-        { username: id, password: pwd }
+        { account_email: id, password: pwd }
         // { headers: { "Content-Type": "application/json" } }
       )
       .then((res) => {
         // if (res.data.result === "success") {
-        console.log(res.data);
-        if (res.data.message === "로그인 성공") {
-          const tokens = res.data.responseDto.token;
+        if (res.data.msg === "로그인 성공") {
+          const tokens = res.data.data.token;
           //세션저장소 말고 쿠키로 사용
-          setCookie("jwtToken", tokens);
+          // setCookie("jwtToken", tokens);
+          console.log("tokens", tokens);
+          sessionStorage.setItem("jwtToken", tokens);
+
           // axios.defaults.headers.common["Authorization"] = `Bearer ${tokens}`;
 
           dispatch(
             setUser({
-              user_name: res.data.responseDto.username,
+              user_name: res.data.data.account_name,
               id: id,
               user_profile: "",
-              uid: res.data.responseDto.userId,
+              uid: res.data.data.account_id,
             })
           );
 
-          history.push("/");
-        }
+          history.replace("/");
+        } else window.alert(`${res.data.msg}`);
       })
       .catch((error) => {
         console.log(error.respons);
@@ -114,16 +123,20 @@ const signupFB = (id, pwd, pwd_check, user_name) => {
       .post(
         "api/register",
         {
-          username: id,
+          account_email: id,
           password: pwd,
-          checkPw: pwd_check,
-          nickname: user_name,
+          password_check: pwd_check,
+          account_name: user_name,
         },
-        { headers: { "Content-Type": "application/json" } }
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
       )
       .then((res) => {
         console.log(res);
-        if (res.data.message === "회원가입 성공") {
+        if (res.data.msg === "회원 가입 완료") {
           console.log(res);
 
           // dispatch(
@@ -134,7 +147,9 @@ const signupFB = (id, pwd, pwd_check, user_name) => {
           //     uid: res.userData.userId,
           //   })
           // );
-          history.push("/login");
+          history.replace("/login");
+        } else {
+          window.alert(`${res.data.msg}`);
         }
       })
       .catch((error) => {
@@ -203,6 +218,34 @@ const signupFB = (id, pwd, pwd_check, user_name) => {
 
 const loginCheckFB = () => {
   return function (dispatch, getState, { history }) {
+    instance
+      .get("api/token", {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+
+        dispatch(
+          setUser({
+            user_name: res.data.data.account_name,
+            id: res.data.data.account_email,
+            user_profile: "",
+            uid: res.data.data.account_id,
+          })
+        );
+      })
+      .catch((error) => {
+        //예외처리
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        var errorType = error.errorType;
+        console.log(errorCode, errorMessage, errorType);
+        // ..
+      });
+
+    return;
     auth.onAuthStateChanged((user) => {
       if (user) {
         dispatch(
@@ -222,7 +265,8 @@ const loginCheckFB = () => {
 
 const logoutFB = () => {
   return function (dispatch, getState, { history }) {
-    deleteCookie("token");
+    deleteCookie("jwtToken");
+    sessionStorage.clear();
     window.alert("로그아웃 되었습니다");
     //auth.signOut()로그아웃 함수
     dispatch(logOut());
@@ -235,13 +279,11 @@ export default handleActions(
   {
     [SET_USER]: (state, action) =>
       produce(state, (draft) => {
-        // setCookie("is_login", "success");
         draft.user = action.payload.user;
         draft.is_login = true;
       }),
     [LOG_OUT]: (state, action) =>
       produce(state, (draft) => {
-        // deleteCookie("is_login");
         draft.user = null;
         draft.is_login = false;
       }),

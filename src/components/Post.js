@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-// import Grid from "../elements/Grid";
-// import Image from "../elements/Image";
-// import Text from "../elements/Text";
+
+import Moment from "react-moment";
+import "moment/locale/ko";
 
 import { Grid, Image, Text, Button } from "../elements";
 import { history } from "../redux/configureStore";
@@ -16,30 +16,33 @@ import Permit from "../shared/Permit";
 const Post = (props) => {
   const dispatch = useDispatch();
   let Today = moment().format("YYYY-MM-DD hh:mm:ss");
-
   useEffect(() => {
-    dispatch(likeActions.getLikeFB(props.id));
+    dispatch(likeActions.getLikeFB(props.board_id));
   });
+  const displayCreatedAt = (createdAt) => {
+    let startTime = new Date(createdAt);
+    let nowTime = Date.now();
+    if (parseInt(startTime - nowTime) > -60000) {
+      return <Moment format="방금 전">{startTime}</Moment>;
+    }
+    if (parseInt(startTime - nowTime) < -86400000) {
+      return <Moment format="MMM D일">{startTime}</Moment>;
+    }
+    if (parseInt(startTime - nowTime) > -86400000) {
+      return <Moment fromNow>{startTime}</Moment>;
+    }
+  };
   return (
     <React.Fragment>
       <Grid>
-        <Grid
-          _onClick={() => {
-            history.push(`/post/${props.id}`);
-          }}
-        >
+        <Grid>
           <Grid is_flex padding="16px">
             <Grid is_flex width="auto">
               <Image shape="circle" src={props.src} />
-              <Text bold>{props.user_info.user_name}</Text>
+              <Text bold>{props.account_name}</Text>
             </Grid>
             <Grid is_flex width="auto">
-              <Text>
-                {Math.abs(
-                  moment(Today).hour() - moment(props.insert_dt).hour()
-                )}
-                시간 전
-              </Text>
+              <Text>{displayCreatedAt(props.time)}</Text>
 
               {props.is_me && (
                 <>
@@ -48,7 +51,7 @@ const Post = (props) => {
                     padding="4px"
                     margin="4px"
                     _onClick={() => {
-                      dispatch(postActions.removePostFB(props.id));
+                      dispatch(postActions.removePostFB(props.board_id));
                       history.replace("/");
                     }}
                   >
@@ -59,7 +62,7 @@ const Post = (props) => {
                     padding="4px"
                     margin="4px"
                     _onClick={() => {
-                      history.push(`/write/${props.id}`);
+                      history.replace(`/write/${props.board_id}`);
                     }}
                   >
                     수정
@@ -68,36 +71,40 @@ const Post = (props) => {
               )}
             </Grid>
           </Grid>
-          <>
-            {props.layout === "bottom" && (
+          <Grid
+            _onClick={() => {
+              history.replace(`/post/${props.board_id}`);
+            }}
+          >
+            {props.board_status === "bottom" && (
               <>
                 {/* <Button text={props.layout}></Button> */}
 
                 <Grid padding="16px">
-                  <Text>{props.contents}</Text>
+                  <Text>{props.content}</Text>
                 </Grid>
                 <Grid>
-                  <Image shape="rectangle" src={props.image_url} />
+                  <Image shape="rectangle" src={props.img_url} />
                 </Grid>
               </>
             )}
-            {props.layout === "left" && (
+            {props.board_status === "left" && (
               <>
                 {/* <Button text={props.layout}></Button> */}
 
                 <Grid is_flex padding="16px">
-                  <Image shape="rectangle" src={props.image_url} />
-                  <Text width="95vw">{props.contents}</Text>
+                  <Image shape="rectangle" src={props.img_url} />
+                  <Text width="95vw">{props.content}</Text>
                 </Grid>
               </>
             )}
-            {props.layout === "right" && (
+            {props.board_status === "right" && (
               <>
                 {/* <Button text={props.layout}></Button> */}
 
                 <Grid is_flex padding="16px">
-                  <Text width="95vw">{props.contents}</Text>
-                  <Image shape="rectangle" src={props.image_url} />
+                  <Text width="95vw">{props.content}</Text>
+                  <Image shape="rectangle" src={props.img_url} />
                 </Grid>
               </>
             )}
@@ -107,15 +114,15 @@ const Post = (props) => {
           <Grid>
             <Image shape="rectangle" src={props.image_url} />
           </Grid> */}
-          </>
+          </Grid>
         </Grid>
         <Grid is_flex padding="5px">
           <Grid padding="16px">
             <Permit>
-              <HeartButton post_id={props.id} />
+              <HeartButton post_id={props.board_id} />
             </Permit>
             <Text margin="0px" bold>
-              좋아요 {props.like_cnt}개
+              좋아요 {props.like}개
             </Text>
           </Grid>
         </Grid>
@@ -125,14 +132,13 @@ const Post = (props) => {
 };
 
 Post.defaultProps = {
-  user_info: {
-    user_name: "mean0",
-    user_profile: "http://via.placeholder.com/400x300",
-  },
-  image_url: "http://via.placeholder.com/400x300",
-  contents: "고양이네요!",
+  account_name: "mean0",
+  user_profile: "http://via.placeholder.com/400x300",
+
+  img_url: "http://via.placeholder.com/400x300",
+  content: "고양이네요!",
   comment_cnt: 10,
-  insert_dt: "2021-02-27 10:00:00",
+  time: "2021-02-27 10:00:00",
   is_me: false,
 };
 
