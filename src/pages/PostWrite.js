@@ -30,6 +30,9 @@ const PostWrite = (props) => {
     }
 
     if (is_edit) {
+      // if (imageActions) {
+      //   import()
+      // }
       dispatch(imageActions.setPreview(_post.img_url));
     }
   }, []);

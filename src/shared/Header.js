@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
 
 import { history } from "../redux/configureStore";
+import { token } from "./api";
 
 const Header = (props) => {
   const dispatch = useDispatch();
@@ -30,7 +31,12 @@ const Header = (props) => {
           </Grid>
 
           <Grid is_flex>
-            <Button text="내정보"></Button>
+            <Button
+              text="토큰확인"
+              _onClick={() => {
+                console.log(sessionStorage.getItem("jwtToken"));
+              }}
+            ></Button>
             <Button
               text="알림"
               _onClick={() => {
@@ -67,6 +73,12 @@ const Header = (props) => {
         </Grid>
 
         <Grid is_flex>
+          <Button
+            text="토큰확인"
+            _onClick={() => {
+              console.log(sessionStorage.getItem("jwtToken"));
+            }}
+          ></Button>
           <Button
             text="로그인"
             _onClick={() => {

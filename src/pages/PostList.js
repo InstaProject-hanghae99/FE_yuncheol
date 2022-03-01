@@ -3,7 +3,7 @@ import React from "react";
 
 import Post from "../components/Post";
 import { useSelector, useDispatch } from "react-redux";
-import post, { actionCreators as postActions } from "../redux/modules/post";
+import { actionCreators as postActions } from "../redux/modules/post";
 import InfinityScroll from "../shared/InfinityScroll";
 import { Grid } from "../elements";
 

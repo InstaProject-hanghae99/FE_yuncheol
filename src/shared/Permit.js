@@ -1,6 +1,6 @@
 import React from "react";
 
-import { userSelector, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getCookie } from "./Cookie";
 
 import { apiKey } from "./firebase";
