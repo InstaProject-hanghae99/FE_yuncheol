@@ -17,7 +17,7 @@ const PostList = (props) => {
   React.useEffect(() => {
     // if (post_list.length === 0) {
     const list = post_list;
-    dispatch(postActions.getPostFB());
+    dispatch(postActions.getPostFB(paging.page));
     // }
   }, []);
 
@@ -26,9 +26,9 @@ const PostList = (props) => {
       <Grid bg={"#EFF6FF"} padding="20px 0px">
         {/* <Post/> */}
         <InfinityScroll
-          // callNext={() => {
-          //   dispatch(postActions.getPostFB(paging.next));
-          // }}
+          callNext={() => {
+            dispatch(postActions.getPostFB(paging.page));
+          }}
           is_next={paging.next ? true : false}
           loading={is_loading}
         >

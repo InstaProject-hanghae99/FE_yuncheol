@@ -8,15 +8,16 @@ import { actionCreators as imageActions } from "./image";
 import { instance, token } from "../../shared/api";
 import { getCookie } from "../../shared/Cookie";
 
+const tokens = sessionStorage.getItem("jwtToken")
+  ? sessionStorage.getItem("jwtToken")
+  : undefined;
 const SET_POST = "SET_POST";
 const ADD_POST = "ADD_POST";
 const EDIT_POST = "EDIT_POST";
 const REMOVE_POST = "REMOVE_POST";
-const RESET_POST = "RESET_POST";
 const LOADING = "LOADING";
-const setPost = createAction(SET_POST, (post_list, paging) => ({
+const setPost = createAction(SET_POST, (post_list) => ({
   post_list,
-  paging,
 }));
 const addPost = createAction(ADD_POST, (post) => ({ post }));
 const editPost = createAction(EDIT_POST, (post_id, post) => ({
@@ -30,7 +31,7 @@ const loading = createAction(LOADING, (is_loading) => ({ is_loading }));
 
 const initialState = {
   list: [],
-  paging: { start: null, next: null, size: 3 },
+  paging: { next: true, page: 0, size: 3 },
   is_loading: false,
 };
 
@@ -43,35 +44,35 @@ const initialPost = {
   board_status: "bottom",
   time: moment().format(),
 };
-
-const getPostFB = (start = null, size = 3) => {
+const getPostFB = (page = 0, size = 3) => {
   return function (dispatch, getState, { history }) {
     // state에서 페이징 정보 가져오기
-    let _paging = getState().post.paging;
 
+    let _paging = getState().post.paging;
+    // instance.get("api/boardPaging?page=1").then((res) => {
+    //   console.log(res);
+    // });
     // 시작정보가 기록되었는데 다음 가져올 데이터가 없다면? 앗, 리스트가 끝났겠네요!
     // 그럼 아무것도 하지말고 return을 해야죠!
-    if (_paging.start && !_paging.next) {
+    if (!_paging.next) {
       return;
     }
+
     // console.log(token);
     // 가져오기 시작~!
     dispatch(loading(true));
-    let paging = {
-      start: 0,
-      next: null,
-      size: 10,
-    };
+
     instance
-      .get("api/board", {
+      .get(`api/boardPaging?page=${page}`, {
         headers: {
           Authorization: token,
           // "X-AUTH-TOKEN": token,
         },
       })
       .then((res) => {
-        if (res.data.msg === "전체 게시글 조회 성공") {
-          dispatch(setPost(res.data.data, paging));
+        // if (res.data.msg === "전체 게시글 조회 성공") {
+        if (res.status === 200) {
+          dispatch(setPost(res.data.data.content));
         }
       })
       .catch((error) => {
@@ -250,7 +251,7 @@ const addPostFB = (contents = "", layout = "bottom") => {
             // return으로 넘겨준 값이 잘 넘어왔나요? :)
             // 다시 콘솔로 확인해주기!
             // console.log(url);
-            console.log(token);
+            console.log(tokens);
             instance
               .post(
                 "api/board",
@@ -261,7 +262,7 @@ const addPostFB = (contents = "", layout = "bottom") => {
                 },
                 {
                   headers: {
-                    Authorization: token,
+                    Authorization: tokens,
                     // "X-AUTH-TOKEN": token,
                   },
                 }
@@ -349,7 +350,6 @@ export default handleActions(
     [SET_POST]: (state, action) =>
       produce(state, (draft) => {
         draft.list.push(...action.payload.post_list);
-
         draft.list = draft.list.reduce((acc, cur) => {
           if (acc.findIndex((a) => a.board_id === cur.board_id) === -1) {
             return [...acc, cur];
@@ -358,11 +358,18 @@ export default handleActions(
             return acc;
           }
         }, []);
+        if (action.payload.post_list.length === 0) {
+          draft.paging.next = false;
+        }
         if (action.payload.paging) {
           draft.paging = action.payload.paging;
         }
-
+        draft.paging.page += 1;
         draft.is_loading = false;
+
+        // draft.list.push(...action.payload.post_list);
+        // draft.paging = action.payload.paging;
+        // draft.is_loading = false;
       }),
 
     [ADD_POST]: (state, action) =>

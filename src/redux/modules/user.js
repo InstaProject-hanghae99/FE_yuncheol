@@ -3,7 +3,7 @@ import { produce } from "immer";
 import { setCookie, getCookie, deleteCookie } from "../../shared/Cookie";
 import { auth } from "../../shared/firebase";
 import firebase from "firebase/compat/app";
-import { userApi, instance, token } from "../../shared/api";
+import { userApi, instance, token, settoken } from "../../shared/api";
 import axios from "axios";
 
 //actions
@@ -50,6 +50,7 @@ const loginFB = (id, pwd) => {
           //세션저장소 말고 쿠키로 사용
           // setCookie("jwtToken", tokens);
           sessionStorage.setItem("jwtToken", tokens);
+          settoken();
 
           dispatch(
             setUser({
