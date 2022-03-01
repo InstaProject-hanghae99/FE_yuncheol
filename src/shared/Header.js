@@ -1,19 +1,14 @@
 import React from "react";
-import { Grid, Text, Button } from "../elements";
-import { getCookie, deleteCookie } from "../shared/Cookie";
+import { Grid, Button } from "../elements";
 
 import { useSelector, useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
 
 import { history } from "../redux/configureStore";
-import { apiKey } from "../shared/firebase";
-import { go } from "connected-react-router";
 
 const Header = (props) => {
   const dispatch = useDispatch();
   const is_login = useSelector((state) => state.user.is_login);
-
-  const _session_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
 
   const is_session = sessionStorage.getItem("jwtToken") ? true : false;
   // const is_session = getCookie ? true : false;
@@ -42,6 +37,7 @@ const Header = (props) => {
                 history.replace("/noti");
               }}
             ></Button>
+
             <Button
               text="로그아웃"
               _onClick={() => {

@@ -9,13 +9,11 @@ import { history } from "../redux/configureStore";
 import { actionCreators as postActions } from "../redux/modules/post";
 import { actionCreators as likeActions } from "../redux/modules/like";
 
-import moment from "moment";
 import HeartButton from "./HeartButton";
 import Permit from "../shared/Permit";
 
 const Post = (props) => {
   const dispatch = useDispatch();
-  let Today = moment().format("YYYY-MM-DD hh:mm:ss");
   useEffect(() => {
     dispatch(likeActions.getLikeFB(props.board_id));
   });

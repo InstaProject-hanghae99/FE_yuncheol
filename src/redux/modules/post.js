@@ -1,12 +1,10 @@
 import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
-import { firestore, storage } from "../../shared/firebase";
-import { connectAdvanced } from "react-redux";
+import { storage } from "../../shared/firebase";
 import { ref, deleteObject } from "firebase/storage";
 import moment from "moment";
 import { actionCreators as imageActions } from "./image";
 import { isLength } from "lodash";
-import axios from "axios";
 import { instance, token } from "../../shared/api";
 import { getCookie } from "../../shared/Cookie";
 
@@ -16,7 +14,6 @@ const EDIT_POST = "EDIT_POST";
 const REMOVE_POST = "REMOVE_POST";
 const RESET_POST = "RESET_POST";
 const LOADING = "LOADING";
-const resetPost = createAction(RESET_POST, (post_list) => ({ post_list }));
 const setPost = createAction(SET_POST, (post_list, paging) => ({
   post_list,
   paging,
@@ -39,22 +36,12 @@ const initialState = {
 
 // 게시글 하나에는 어떤 정보가 있어야 하는 지 하나 만들어둡시다! :)
 const initialPost = {
-  // user_info: {
-  //   id: 0,
-  //   user_name: "mean0",
-  //   user_profile: "http://via.placeholder.com/400x300",
-  // },
   img_url: "http://via.placeholder.com/400x300",
-  // image_url: "http://via.placeholder.com/400x300",
   content: "",
   comment_cnt: 0,
   like: 0,
-  // like_cnt: 0,
   board_status: "bottom",
-  // layout: "bottom",
   time: moment().format(),
-  // insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
-  // insert_dt: moment(),
 };
 
 const getPostFB = (start = null, size = 3) => {
@@ -70,8 +57,6 @@ const getPostFB = (start = null, size = 3) => {
     // console.log(token);
     // 가져오기 시작~!
     dispatch(loading(true));
-    let post_list = [];
-    // dispatch(resetPost(post_list));
     let paging = {
       start: 0,
       next: null,
@@ -86,9 +71,6 @@ const getPostFB = (start = null, size = 3) => {
       })
       .then((res) => {
         if (res.data.msg === "전체 게시글 조회 성공") {
-          // console.log(res.data.data);
-          let _post = res.data.data;
-
           dispatch(setPost(res.data.data, paging));
         }
       })
@@ -107,7 +89,6 @@ const getPostFB = (start = null, size = 3) => {
 
 const getOnePostFB = (id) => {
   return function (dispatch, getState, { history }) {
-    const postDB = firestore.collection("post");
     instance
       .get("api/board", {
         headers: {
@@ -135,31 +116,6 @@ const getOnePostFB = (id) => {
         console.log(errorCode, errorMessage);
         // ..
       });
-    return;
-
-    postDB
-      .doc(id)
-      .get()
-      .then((doc) => {
-        // console.log(doc);
-        // console.log(doc.data());
-
-        let _post = doc.data();
-        let post = Object.keys(_post).reduce(
-          (acc, cur) => {
-            if (cur.indexOf("user_") !== -1) {
-              return {
-                ...acc,
-                user_info: { ...acc.user_info, [cur]: _post[cur] },
-              };
-            }
-            return { ...acc, [cur]: _post[cur] };
-          },
-          { id: doc.id, user_info: {} }
-        );
-
-        dispatch(setPost([post]));
-      });
   };
 };
 
@@ -175,7 +131,6 @@ const editPostFB = (post_id = null, post = {}) => {
       (p) => p.board_id === parseInt(post_id)
     );
     const _post = getState().post.list[_post_idx];
-    const postDB = firestore.collection("post");
     if (_image === _post.img_url) {
       instance
         .put(
@@ -205,15 +160,6 @@ const editPostFB = (post_id = null, post = {}) => {
           console.log(errorCode, errorMessage);
           // ..
         });
-      return;
-      postDB
-        .doc(post_id)
-        .update(post)
-        .then((doc) => {
-          dispatch(editPost(parseInt(post_id), { ...post }));
-          history.replace("/");
-        });
-      return;
     } else {
       const user_id = getState().user.user.uid;
       const _upload = storage
@@ -257,15 +203,6 @@ const editPostFB = (post_id = null, post = {}) => {
                 console.log(errorCode, errorMessage);
                 // ..
               });
-
-            return;
-            postDB
-              .doc(post_id)
-              .update({ ...post, image_url: url })
-              .then((doc) => {
-                dispatch(editPost(post_id, { ...post, image_url: url }));
-                history.replace("/");
-              });
           })
           .catch((err) => {
             window.alert("앗! 이미지 업로드에 문제가 있어요!");
@@ -278,7 +215,6 @@ const editPostFB = (post_id = null, post = {}) => {
 
 const addPostFB = (contents = "", layout = "bottom") => {
   return function (dispatch, getState, { history }) {
-    const postDB = firestore.collection("post");
     const _user = getState().user.user;
     const user_info = {
       account_name: _user.user_name,
@@ -290,9 +226,7 @@ const addPostFB = (contents = "", layout = "bottom") => {
       ...initialPost,
       content: contents,
       board_status: layout,
-      // insert_dt: moment(),
       time: moment().format(),
-      // insert_dt: new Date(),
     };
 
     // getState()로 store의 상태값에 접근할 수 있어요!
@@ -356,20 +290,6 @@ const addPostFB = (contents = "", layout = "bottom") => {
 
                 console.log(errorCode, errorMessage);
               });
-            return;
-            postDB
-              .add({ ...user_info, ..._post, image_url: url })
-              .then((doc) => {
-                // 아이디를 추가해요!
-                let post = { user_info, ..._post, id: doc.id, image_url: url };
-                // 이제 리덕스에 넣어봅시다.
-                dispatch(addPost(post));
-                history.replace("/");
-              })
-              .catch((err) => {
-                window.alert("앗! 포스트 작성에 문제가 있어요!");
-                console.log("post 작성 실패!", err);
-              });
           });
       })
       .catch((err) => {
@@ -384,7 +304,6 @@ const removePostFB = (post_id = null, post = {}) => {
       console.log("게시물 정보가 없어요!");
       return;
     }
-    const postDB = firestore.collection("post");
 
     //이미지 삭제
     const _post_idx = getState().post.list.findIndex(
@@ -422,46 +341,6 @@ const removePostFB = (post_id = null, post = {}) => {
 
         console.log(errorCode, errorMessage);
       });
-    return;
-    postDB
-      .doc(post_id)
-      .delete()
-      .then(() => {
-        dispatch(removepost(post_id));
-        history.replace("/");
-      })
-      .catch((err) => {
-        window.alert("앗! 이미지 업로드에 문제가 있어요!");
-        console.log("앗! 이미지 업로드에 문제가 있어요!", err);
-      });
-
-    return;
-    // } else {
-    //   const user_id = getState().user.user.uid;
-    //   const _upload = storage
-    //     .ref(`images/${user_id}_${new Date().getTime()}`)
-    //     .putString(_image, "data_url");
-    //   _upload.then((snapshot) => {
-    //     snapshot.ref
-    //       .getDownloadURL()
-    //       .then((url) => {
-    //         console.log(url);
-    //         return url;
-    //       })
-    //       .then((url) => {
-    //         postDB
-    //           .doc(post_id)
-    //           .update({ ...post, image_url: url })
-    //           .then((doc) => {
-    //             dispatch(editPost(post_id, { ...post, image_url: url }));
-    //             history.replace("/");
-    //           });
-    //       })
-    //       .catch((err) => {
-    //         window.alert("앗! 이미지 업로드에 문제가 있어요!");
-    //         console.log("앗! 이미지 업로드에 문제가 있어요!", err);
-    //       });
-    //   });
   };
 };
 // reducer
@@ -469,9 +348,6 @@ export default handleActions(
   {
     [SET_POST]: (state, action) =>
       produce(state, (draft) => {
-        // draft.list.push(...action.payload.post_list);
-        // draft.paging = action.payload.paging;
-        // draft.is_loading = false;
         draft.list.push(...action.payload.post_list);
 
         draft.list = draft.list.reduce((acc, cur) => {
@@ -512,12 +388,6 @@ export default handleActions(
     [LOADING]: (state, action) =>
       produce(state, (draft) => {
         draft.is_loading = action.payload.is_loading;
-      }),
-    [RESET_POST]: (state, action) =>
-      produce(state, (draft) => {
-        console.log(draft.list);
-        console.log(action);
-        draft.list = null;
       }),
   },
   initialState

@@ -1,11 +1,5 @@
 import React from "react";
 import Post from "../components/Post";
-import { Grid, Text, Button, Image, Input } from "../elements";
-
-import CommentList from "../components/CommentList";
-import CommentWrite from "../components/CommentWrite";
-
-import Permit from "../shared/Permit";
 
 import { useDispatch, useSelector } from "react-redux";
 

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { getCookie } from "./Cookie";
-// const token = getCookie("jwtToken");
-const token = sessionStorage.getItem("jwtToken");
-
+const token = sessionStorage.getItem("jwtToken")
+  ? sessionStorage.getItem("jwtToken")
+  : undefined;
 const instance = axios.create({
   baseURL: process.env.REACT_APP_MYINSTA_API_BASE_URL_ssj,
 });

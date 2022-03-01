@@ -36,36 +36,20 @@ const loginAction = (user) => {
   return function (dispatch, getState, { history }) {
     console.log(history);
     dispatch(setUser(user));
-    // dispatch(push("/"));
     history.push("/");
   };
 };
 
 const loginFB = (id, pwd) => {
   return function (dispatch, getState, { history }) {
-    // const is_cookie = getCookie("jwtToken") ? true : false;
-    // if (is_cookie) {
-    //   //버그수정해야함
-    //   console.log(is_cookie);
-    //   dispatch(loginCheckFB());
-    //   return;
-    // }
     instance
-      .post(
-        "api/login",
-        { account_email: id, password: pwd }
-        // { headers: { "Content-Type": "application/json" } }
-      )
+      .post("api/login", { account_email: id, password: pwd })
       .then((res) => {
-        // if (res.data.result === "success") {
         if (res.data.msg === "로그인 성공") {
           const tokens = res.data.data.token;
           //세션저장소 말고 쿠키로 사용
           // setCookie("jwtToken", tokens);
-          console.log("tokens", tokens);
           sessionStorage.setItem("jwtToken", tokens);
-
-          // axios.defaults.headers.common["Authorization"] = `Bearer ${tokens}`;
 
           dispatch(
             setUser({
@@ -88,32 +72,6 @@ const loginFB = (id, pwd) => {
         console.log(errorCode, errorMessage);
         // ..
       });
-    return;
-
-    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then((res) => {
-      auth
-        .signInWithEmailAndPassword(id, pwd)
-        .then((user) => {
-          console.log(user);
-
-          dispatch(
-            setUser({
-              user_name: user.user.displayName,
-              id: id,
-              user_profile: "",
-              uid: user.user.uid,
-            })
-          );
-
-          history.push("/");
-        })
-        .catch((error) => {
-          var errorCode = error.code;
-          var errorMessage = error.message;
-
-          console.log(errorCode, errorMessage);
-        });
-    });
   };
 };
 
@@ -139,14 +97,6 @@ const signupFB = (id, pwd, pwd_check, user_name) => {
         if (res.data.msg === "회원 가입 완료") {
           console.log(res);
 
-          // dispatch(
-          //   setUser({
-          //     user_name: user_name,
-          //     id: id,
-          //     user_profile: "",
-          //     uid: res.userData.userId,
-          //   })
-          // );
           history.replace("/login");
         } else {
           window.alert(`${res.data.msg}`);
@@ -162,57 +112,6 @@ const signupFB = (id, pwd, pwd_check, user_name) => {
       });
 
     return;
-    fetch("http://localhost:3000/auth/login.json", {
-      method: "GET", // 실제 서버 요청은 POST 요청이겠죠?
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.result.ok) {
-          /**
-           * 선택 가능한 작업
-           * 1. localStorage.setItem("token", data.result.user.token)
-           * 2. dispatch(setPostList(data))
-           *  etc...
-           */
-        }
-        console.log(data.result);
-      });
-
-    auth
-      .createUserWithEmailAndPassword(id, pwd)
-      .then((user) => {
-        console.log(user);
-
-        auth.currentUser
-          .updateProfile({
-            displayName: user_name,
-          })
-          .then(() => {
-            dispatch(
-              setUser({
-                user_name: user_name,
-                id: id,
-                user_profile: "",
-                uid: user.user.uid,
-              })
-            );
-            history.push("/");
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-
-        // Signed in
-        // ...
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-
-        console.log(errorCode, errorMessage);
-        // ..
-      });
   };
 };
 
@@ -242,22 +141,6 @@ const loginCheckFB = () => {
         console.log(errorCode, errorMessage, errorType);
         // ..
       });
-
-    return;
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        dispatch(
-          setUser({
-            user_name: user.displayName,
-            user_profile: "",
-            id: user.email,
-            uid: user.uid,
-          })
-        );
-      } else {
-        dispatch(logOut());
-      }
-    });
   };
 };
 
@@ -266,7 +149,6 @@ const logoutFB = () => {
     // deleteCookie("jwtToken");
     sessionStorage.clear();
     window.alert("로그아웃 되었습니다");
-    //auth.signOut()로그아웃 함수
     dispatch(logOut());
     history.replace("/");
   };
